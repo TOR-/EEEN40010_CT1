@@ -141,3 +141,18 @@ For the case where the gain fails to 500\% of its nominal value, the step respon
 Judged by these two failure modes, the closed-loop system is not failsafe due to the magnitude of the overshoot exhibited by the fail-high mechanism and possibly also the extreme slowness exhibited by the fail-low mechanism.
 
 \ffigures{p2-step-fail-low.png/Step response of fail low scenario./fig:2:step fail low,p2-step-fail-high.png/Step response of fail high scenario./fig:2:step fail high}
+
+\subproblem{Equations of motion}
+
+The PI controller is described by the following equation where $E$ is the error signal and $OP$ is the output of the controller:
+\begin{equation*}
+	OP = K_p E + K_i\int E
+\end{equation*}
+But $OP=F$ where $F$ is the input to the plant. Letting them equal and differentiating to remove the integral we arrive at the following equation:
+\begin{align*}
+	K_p\dot{E} + K_i E&= m \dddot{y} + \delta \ddot{y} + (k + 3\epsilon y^2)\dot{y}\\
+\end{align*}
+If the input to the controller, $E(t)$, is represented as the difference of the reference input $x$ and the output $y$ as in a unity negative feedback system, the above equation becomes the following:
+\begin{align*}
+	K_p\dot{x} + K_i x&= m \dddot{y} + \delta \ddot{y} + (k + 3\epsilon y^2 K_p)\dot{y} + K_i y\\
+\end{align*}
