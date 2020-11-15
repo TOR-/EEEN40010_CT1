@@ -134,3 +134,10 @@ The step response of the closed loop system is given in \cref{fig:2:step Gcl} an
 \ffigures{p2-step-Gcl.png/Step response of closed loop system of $G_c$ in series with $G_{p,lin}$ with ideal feedback./fig:2:step Gcl}
 
 \subproblem{Evaluation of Failure Mechanisms}
+For the case where the gain fails to 1\% of the nominal, the step response is shown in \cref{fig:2:step fail low}. As the plot shows, the system is extremely slow ($t_s=\SI{266}{\second}$), but exhibits no overshoot. This lack of overshoot implies that the system is failsafe, unless a failure condition is extremely sluggish response.
+
+For the case where the gain fails to 500\% of its nominal value, the step response is shown in \cref{fig:2:step fail high}. Contrary to the previous failure case, the 2\% settling time of the step response of this failure mode is not too dissimilar to the nominal value. Its overshoot is 49\% however, nearly twice the specified value. This is most likely unsafe.
+
+Judged by these two failure modes, the closed-loop system is not failsafe due to the magnitude of the overshoot exhibited by the fail-high mechanism and possibly also the extreme slowness exhibited by the fail-low mechanism.
+
+\ffigures{p2-step-fail-low.png/Step response of fail low scenario./fig:2:step fail low,p2-step-fail-high.png/Step response of fail high scenario./fig:2:step fail high}

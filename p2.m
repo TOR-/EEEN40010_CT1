@@ -37,12 +37,16 @@ kl = k*0.01;
 Gclow = tf(kl*[1 z],[1 0]);
 Golow = series(Gp, Gclow);
 Gcllow = feedback(Golow, Gideal);
-%step(Gcllow)
+step(Gcllow)
+title("Step response of fail low case")
+%print('report/img/p2-step-fail-low','-dpng');
 %% 6 ii Fail high?
 kh = k*5;
 Gchigh = tf(kh*[1 z],[1 0]);
 Gohigh = series(Gp, Gchigh);
 Gclhigh = feedback(Gohigh, Gideal);
-%step(Gclhigh)
+step(Gclhigh)
+title("Step response of fail high case")
+%print('report/img/p2-step-fail-high','-dpng');
 %% 8 Step response
 %lsim(Gcl, ones(length(0:0.01:10),1)', 0:0.01:10)
