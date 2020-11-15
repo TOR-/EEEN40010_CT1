@@ -1,1 +1,42 @@
 \problem
+
+\begin{equation}\label{eq:1:Gp}
+	\mathcal{G}_p = \frac{24 (s + 26)}{(s+50.8)(s+16.4)}
+\end{equation}
+
+To achieve a closed loop system with a controller in series with the plant given in \cref{eq:1:Gp} with the following specifications I implemented a PI controller. The step response of the plant is given in \cref{fig:1:step Gp}
+\begin{enumerate}
+	\item \textbf{Stable closed loop system.} This translates to all poles and zeroes of the closed loop system being in the left half plane.
+	\item \textbf{Zero steady-state error to a step input.} This translates to an open-loop pole at zero. Since the plant does not already have a pole at zero, it must be introduced as an I term in the controller. The plant's steady-state error is 0.2516.
+	\item \textbf{Closed loop system 2\% settling time $\leq80\%$ that of the plant.} Approximating the closed loop system as a first-order system (assuming it has a single dominant real pole) allows an approximate equation between the dominant pole and the 2\% settling time:
+	$$
+	\sigma > \frac{4}{t_{s,2\%}} = \frac{4}{0.8 t_{s,2\%,plant}} = \frac{4}{\SI{0.1612}{\second}} = 24.8
+	$$
+	\item As the percentage overshoot of the plant is zero, the \textbf{percentage overshoot must be less than 25\%}. To meet this specification, I will minimise the complex part of any poles introduced as the plant has no complex poles.
+\end{enumerate}
+
+\ffigures{p1-step-Gp/Step response of plant/fig:1:step Gp}
+
+Using the P and I terms of the PID controller, the following controller transfer function is used:
+\begin{equation}\label{eq:1:Gc}
+	\mathcal{G}_c(s) = \frac{k(s+z)}{s}
+\end{equation}
+
+I chose a value of $\sigma = -28 < -24.8$ for $z$ to satisfy the 2\% settling time requirement. Despite this, the resulting system did not satisfy the settling time requirement with $t_s = \SI{0.1747}{\second}>\SI{0.1612}{\second}$. This was due to the zero at $\sigma = -26$, close to the introduced zero and to the minimum pole location for the settling time requirement. This zero was slowing down the response. Using the \texttt{rlocfind} command on the open loop system, I calculated the gain necessary for a pole near enough the plant zero to offset its slowing effects. This pole was at $\sigma  -26.6$ and the necessary gain was $18$.
+
+The resulting controller equation is given below.
+\begin{align*}
+	\mathcal{G}_c(s) = \frac{18(s+28)}{s}
+\end{align*}
+
+ The step response of the closed loop system of this controller in series with the plant in a unity feedback loop is given in \cref{fig:1:step Gcl}.
+ \begin{enumerate}
+ 	\item The closed loop system is stable, all poles ($-446.69, -26.26\pm \num{3.83i}$) are negative.
+ 	\item The steady-state value of the system is 1, so the steady-state error is zero.
+ 	\item The 2\% settling time (\SI{0.0147}{\second}) is $\sim 7\%$ that of the plant (\SI{0.2016}{\second}). This is much faster than the necessary 80\% of the plant's settling time and may be unrealistically fast, depending on the implementation of this system.
+ 	\item The percentage overshoot is nil, satisfying the requirement.
+ \end{enumerate}
+
+\ffigures{p1-step-Gcl/Step response of closed loop system./fig:1:step Gcl}
+
+%presence of zeros may affect dominance of would-be dominant pole(s). Discuss with reference to your solution to the current problem.
