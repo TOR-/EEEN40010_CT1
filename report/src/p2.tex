@@ -1,0 +1,136 @@
+\problem
+
+\begin{captioneq}[h]
+	\centering
+	\begin{align}\label{eq:2:global model}
+		F(t)&=m\frac{d^2}{dt^2}y+\delta \frac{d}{dt}y + ky + \epsilon y ^3\\
+		m &= a+b+c = 16\nonumber\\
+		\delta &= 5.3 c = 31.8\nonumber\\
+		k &= 0.5(a+2c)= 8\nonumber\\
+		\epsilon &\text{ : nonlinearity parameter}\nonumber 
+	\end{align}
+	\caption{Global model of spring-mass-damper system with $F(t)$ as input and $y(t)$ as output.}
+	
+\end{captioneq}
+
+\subproblem{Linearised system model}
+
+\begin{align}
+	\label{eq:2:op}
+	\begin{split}
+			y&=0\\
+			\frac{d}{dt}y&=0
+	\end{split}
+\end{align}
+
+To linearise \cref{eq:2:global model} about operating point \cref{eq:2:op} I first replaced the output $y(t)$ with its operating point value (denoted $Y_0$) and a quantity representing a small deviation about its operating point (denoted $\tilde{y}$) :
+$$
+y(t) = Y_0 + \tilde{y}(t)
+$$
+Subbing this expression into \cref{eq:2:global model} we arrive at the following equation:
+$$
+m\frac{d^2}{dt^2}(Y_0 + \tilde{y})+\delta \frac{d}{dt}(Y_0 + \tilde{y}) + k(Y_0 + \tilde{y}) + \epsilon (Y_0 + \tilde{y})^3 = F(t)
+$$
+Which|neglecting powers of $\tilde{y}$ as these would be very small for small deviations from the operating point, neglecting derivatives of $Y_0$ as $Y_0$ is constant, and neglecting $Y_0$ as $Y_0=0$|becomes the following:
+\begin{equation}\label{eq:2:global deviations}
+	m\frac{d^2}{dt^2} \tilde{y}+\delta \frac{d}{dt}\tilde{y} + k\tilde{y}= F(t)
+\end{equation}
+
+Let the elements of the state vector $\vec{x}$ be the deviation of the deflection $\tilde{y}$ and its first derivative $\frac{d}{dt}\tilde{y}$:
+\begin{equation}\label{eq:2:state vector}
+	\vec{x} = \begin{bmatrix}
+		\tilde{y}\\\frac{d}{dt}\tilde{y}
+	\end{bmatrix}
+\end{equation}
+To find an expression for the derivative of the state vector $\dot{\vec{x}}$, equations are derived as follows:
+\begin{align*}
+	\frac{d}{dt} x_1 &= x_2\\
+	\frac{d}{dt}x_2 &=\frac{1}{m}\left(F(t)-\delta x_2 - k\tilde{y}\right)
+\end{align*}
+Representing the input $F(t)$ by its operating point value of $F_0=0$ and its small deviation from this value by $\tilde{F}$ we arrive at the following representation of $\dot{\vec{x}}$:
+\begin{align}
+	\label{eq:2:x dot}
+	\dot{\vec{x}} &=\begin{bmatrix}
+		0&1\\-\frac{k}{m}&-\frac{\delta}{m}
+	\end{bmatrix}\vec{x}
++\begin{bmatrix}
+	0\\\frac{1}{m}
+\end{bmatrix}\tilde{F}\\
+&=A\vec{x} + B \vec{u}\nonumber\\
+\vec{u}&=\begin{bmatrix}
+	\tilde{F}
+\end{bmatrix}\:\text{: input vector}\nonumber
+\end{align}
+
+As the output $y$ in this model is just the deviation $\tilde{y}$ the output is given by the following equation:
+$$
+y=\begin{bmatrix}1 0\end{bmatrix}\vec{x} + \begin{bmatrix}0\end{bmatrix}\vec{u}
+$$
+
+The transfer function of this local LTI model was calculated in \matlab using the \texttt{ss} and \texttt{tf} commands:
+\begin{equation}\label{eq:2:Gp lin}
+	\mathcal{G}_{p,lin} = 
+\frac{0.0625}{s^2 + 1.987 s + 0.5}
+\end{equation}
+
+The characteristics of the system's response to a step input are given in \cref{tab:2:lin step}. 
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{lc}
+		\toprule
+		Characteristic&Value\\
+		\cmidrule(r){1-1}\cmidrule(l){2-2}
+		Steady-state error&0.8752\\
+		$t_{s,2\%}$&\SI{13.8878}{\second}\\
+		PO\%&0\\
+		\bottomrule
+	\end{tabular}
+	\caption{Step characteristics of the local LTI model of the plant \cref{eq:2:Gp lin}.}
+	\label{tab:2:lin step}
+\end{table}
+
+\subproblem{PID Controller Design}
+The implications of the design specifications are given below:
+\begin{enumerate}
+	\item \textbf{Closed loop system must be stable.} All poles and zeroes of the closed loop system must have negative real part.
+	\item \textbf{Zero steady-state error to a step input.} The open-loop system must have a pole at zero. This implies the presence of an I term in the controller as the plant does not have a pole at zero.
+	\item \textbf{$t_{s,2\%} \leq 60\% t_{s,2\%,plant}$.} The settling time must be less than \SI{8.3327}{\second}. Approximating as a first-order system, this requirement implies a pole at $\sigma < -\frac{4}{t_s} = -0.48$.
+	\item \textbf{Percentage overshoot less than 50\% that of the plant or 25\%, whichever is greater.} The plant's overshoot is 0, so the controller must ensure that the closed loop system exhibits less than 25\% overshoot.
+\end{enumerate}
+
+\textbf{First I tried a PI controller}, as these were thus far the only necessary terms. The equation for this controller is given below:
+\begin{equation}
+	\label{eq:2:PI}
+	\mathcal{G}_c = \frac{k(s+z)}{s}
+\end{equation}
+I chose $z$ to be 0.5 to satisfy the settling time requirement. Using \texttt{rlocfind} I calculated the gain for there to be a dominant pole at $\sigma = -0.7$ in the open-loop system. I chose this value as it seemed reasonably greater in magnitude than the required $\sigma = -0.48$ to give some margin for errors in the assumption governing the settling time requirement. I chose a real pole as introducing a complex pair would have added oscillations unnecessarily into the system. The value of gain returned was $\sim 23$.
+
+The final controller equation is the following:
+\begin{equation}
+	\label{eq:2:Gc}
+	\mathcal{G}_c(s) = \frac{23(s+0.5)}{s}
+\end{equation}
+
+The step response of the closed loop system is given in \cref{fig:2:step Gcl} and the associated characteristics in \cref{tab:2:step Gcl}. As the table shows, the system is stable (the real part of all poles is negative), the steady state error is zero (final value is one), the 2\% settling time is less than the requisite 60\% of the plant's settling time given in \cref{tab:2:lin step}, and the percentage overshoot is less than the requisite 25\%.
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{lc}
+		\toprule
+		Characteristic&Value\\
+		\cmidrule(r){1-1}\cmidrule(l){2-2}
+		Poles&$-0.3941\pm\num{0.4038i},-1.1994$\\
+		Zeroes&$-0.5$\\
+		Steady-state error&0\\
+		$t_{s,2\%}$&\SI{6.1386}{\second}\\
+		PO\%&18.3072\%\\
+		\bottomrule
+	\end{tabular}
+	\caption{Step characteristics of the closed loop system of $G_c$ in series with $G_{p,lin}$ with ideal feedback.}
+	\label{tab:2:step Gcl}
+\end{table}
+
+\ffigures{p2-step-Gcl.png/Step response of closed loop system of $G_c$ in series with $G_{p,lin}$ with ideal feedback./fig:2:step Gcl}
+
+\subproblem{Evaluation of Failure Mechanisms}
